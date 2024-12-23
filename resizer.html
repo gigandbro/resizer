@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Resizer</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #FFA07A;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      border: 2px solid #FFA07A;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .button {
+      background-color: #FFA07A;
+      color: #121212;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .button:hover {
+      background-color: #FF8C69;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    footer a {
+      color: #FFA07A;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .stats {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #FFA07A;
+    }
+  </style>
+</head>
+<body>
+  <h1>Image Resizer</h1>
+  <div class="container">
+    <input type="file" id="imageInput" accept="image/*" />
+    <input type="number" id="widthInput" placeholder="Width" style="margin-top: 10px;" />
+    <input type="number" id="heightInput" placeholder="Height" style="margin-top: 10px;" />
+    <button class="button" onclick="resizeImage()">Resize Image</button>
+    <a id="downloadLink" class="button" style="display: none;" download="resized.png">Download Resized Image</a>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div class="stats" id="resizeStats">Images resized: 0</div>
+  </div>
+
+  <footer>
+    Made by <a href="https://github.com/gigandbro/" target="_blank">gig</a>
+  </footer>
+
+  <script>
+    let resizeCount = 0;
+
+    function resizeImage() {
+      const input = document.getElementById('imageInput');
+      const widthInput = document.getElementById('widthInput');
+      const heightInput = document.getElementById('heightInput');
+      const canvas = document.getElementById('canvas');
+      const downloadLink = document.getElementById('downloadLink');
+      const stats = document.getElementById('resizeStats');
+
+      const newWidth = parseInt(widthInput.value, 10);
+      const newHeight = parseInt(heightInput.value, 10);
+
+      if (input && input.files && input.files[0] && newWidth > 0 && newHeight > 0) {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          const img = new Image();
+          img.onload = function () {
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+            // Convert canvas to image and create download link
+            const resizedData = canvas.toDataURL('image/png');
+            downloadLink.href = resizedData;
+            downloadLink.style.display = 'inline-block';
+
+            // Update resize count
+            resizeCount++;
+            stats.textContent = `Images resized: ${resizeCount}`;
+          };
+          img.src = event.target.result;
+        };
+
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please upload an image and specify valid width and height.');
+      }
+    }
+  </script>
+</body>
+</html>
